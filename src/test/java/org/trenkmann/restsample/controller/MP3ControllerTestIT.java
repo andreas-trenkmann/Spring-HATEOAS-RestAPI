@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.hibernate.Hibernate;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class MP3ControllerTestIT {
   public void givenMP3s_whenGetMP3s_thenReturnHALJsonArray() throws Exception {
 
     //given
-    MP3 mp3 = mp3Repository.findById(1L).orElseThrow(() -> new Exception());
+    MP3 mp3 = mp3Repository.findById(1L).orElseThrow(Exception::new);
     List<MP3> mp3s = mp3Repository.findAll();
 
     //when
