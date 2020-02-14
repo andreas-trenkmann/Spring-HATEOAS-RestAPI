@@ -1,6 +1,7 @@
 package org.trenkmann.restsample.controller;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.trenkmann.restsample.data.MP3Repository;
 import org.trenkmann.restsample.data.ShopCartElementRepository;
 import org.trenkmann.restsample.data.ShopCartRepository;
-import org.trenkmann.restsample.exception.ShopCartNoElementFoundException;
 import org.trenkmann.restsample.exception.MP3CanNotFoundException;
+import org.trenkmann.restsample.exception.ShopCartNoElementFoundException;
 import org.trenkmann.restsample.exception.ShopNoCartFoundException;
 import org.trenkmann.restsample.model.CartOrderElementDTO;
 import org.trenkmann.restsample.model.MP3;
@@ -140,7 +141,7 @@ public class ShopOrderController {
   /**
    * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
    */
-  @PutMapping(path = "/cart/{id}/elements/{elementId}")
+  @PutMapping(path = "/cart/{id}/element/{elementId}")
   public ResponseEntity<Resource<ShopCartElement>> addElementToExistingCart(@PathVariable Long id, @PathVariable Long elementId, @RequestBody CartOrderElementDTO orderElementDTO)
       throws URISyntaxException {
 

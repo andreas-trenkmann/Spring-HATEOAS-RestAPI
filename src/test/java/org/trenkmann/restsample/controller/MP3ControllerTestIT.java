@@ -3,8 +3,10 @@ package org.trenkmann.restsample.controller;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -48,7 +50,7 @@ public class MP3ControllerTestIT {
   MockMvc mockMvc;
 
   @Test
-  public void givenMP3s_whenGetMP3s_thenReturnHALJsonArray() throws Exception {
+  public void givenMP3_whenGetMP3s_thenReturnHALJsonArrayAndOK() throws Exception {
 
     //given
     MP3 mp3 = mp3Repository.findById(1L).orElseThrow(Exception::new);
@@ -57,7 +59,7 @@ public class MP3ControllerTestIT {
     //when
     this.mockMvc.perform(get("/mp3s"))
         .andDo(print())
-    //then
+        //then
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
         .andExpect(jsonPath("$._embedded.mP3s[0].title",is(mp3.getTitle())))
@@ -76,14 +78,73 @@ public class MP3ControllerTestIT {
 
     //when
     this.mockMvc.perform(post("/mp3s")
-          .content(objectMapper.writeValueAsString(mp3))
-          .contentType(MediaType.APPLICATION_JSON))
+        .content(objectMapper.writeValueAsString(mp3))
+        .contentType(MediaType.APPLICATION_JSON))
         .andDo(print())
-    //then
+        //then
         .andExpect(status().is(HttpStatus.CREATED.value()))
         .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
-        .andExpect(jsonPath("$.title",is(mp3.getTitle())))
+        .andExpect(jsonPath("$.title", is(mp3.getTitle())))
         .andExpect(header().string("location", startsWith("http://localhost/mp3/")));
   }
+
+  @Test
+  public void givenMP3_whenPutMP3ById_thenReturnHALJsonAndOK() throws Exception {
+
+    //given
+    MP3 mp3 = mp3Repository.findById(1L).orElseThrow(Exception::new);
+    mp3.setLength("2:15");
+    mp3.setTitle("new Title");
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    //when
+    this.mockMvc.perform(put("/mp3/" + mp3.getId())
+        .content(objectMapper.writeValueAsString(mp3))
+        .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        //then
+        .andExpect(status().is(HttpStatus.OK.value()))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(jsonPath("$.title", is(mp3.getTitle())))
+        .andExpect(jsonPath("$.artist", is(mp3.getArtist())))
+        .andExpect(jsonPath("$.length", is(mp3.getLength())));
+
+  }
+
+  @Test
+  public void givenMP3_whenGetMP3ById_thenReturnHALJsonAndOK() throws Exception {
+
+    //given
+    MP3 mp3 = mp3Repository.findById(1L).orElseThrow(Exception::new);
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    //when
+    this.mockMvc.perform(get("/mp3/" + mp3.getId())
+        .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        //then
+        .andExpect(status().is(HttpStatus.OK.value()))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(jsonPath("$.title", is(mp3.getTitle())))
+        .andExpect(jsonPath("$.artist", is(mp3.getArtist())))
+        .andExpect(jsonPath("$.length", is(mp3.getLength())));
+
+  }
+
+  @Test
+  public void givenMP3_whenDeleteMP3ById_thenReturnOK() throws Exception {
+
+    //given
+    MP3 mp3 = mp3Repository.findById(5L).orElseThrow(Exception::new);
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    //when
+    this.mockMvc.perform(delete("/mp3/" + mp3.getId())
+        .contentType(MediaType.APPLICATION_JSON))
+        .andDo(print())
+        //then
+        .andExpect(status().is(HttpStatus.NO_CONTENT.value()));
+  }
+
 
 }
