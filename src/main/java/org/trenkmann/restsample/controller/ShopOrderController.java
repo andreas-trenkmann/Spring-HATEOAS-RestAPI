@@ -34,11 +34,11 @@ import org.trenkmann.restsample.model.dto.ShopOrderDTO;
 public class ShopOrderController {
 
   private final ShopOrderRepository shopOrderRepository;
-  private final ShopOrderAssembler shopOrderAssembler;
+  private final ShopOrderResourceAssembler shopOrderAssembler;
   private final ShopCartRepository shopCartRepository;
 
   ShopOrderController(ShopOrderRepository shopOrderRepository,
-      ShopOrderAssembler shopOrderAssembler, ShopCartRepository shopCartRepository) {
+      ShopOrderResourceAssembler shopOrderAssembler, ShopCartRepository shopCartRepository) {
     this.shopOrderRepository = shopOrderRepository;
     this.shopOrderAssembler = shopOrderAssembler;
     this.shopCartRepository = shopCartRepository;

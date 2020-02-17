@@ -7,6 +7,7 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.stereotype.Component;
 import org.trenkmann.restsample.model.ShopCart;
+import org.trenkmann.restsample.model.dto.ShopOrderDTO;
 
 /**
  * @author andreas trenkmann
@@ -20,7 +21,10 @@ public class ShopCartResourceAssembler implements ResourceAssembler<ShopCart, Re
         linkTo(methodOn(ShopcartController.class).getCartById(cart.getId())).withSelfRel(),
         linkTo(methodOn(ShopcartController.class).getCartElementsByCartId(cart.getId()))
             .withRel("elementInCart"),
+        linkTo(methodOn(ShopOrderController.class).newShopOrder(new ShopOrderDTO()))
+            .withRel("order"),
         linkTo(methodOn(ShopcartController.class).getCarts()).withRel("carts"));
+
   }
 
 }

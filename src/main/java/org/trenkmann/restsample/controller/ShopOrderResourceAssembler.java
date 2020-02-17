@@ -12,7 +12,7 @@ import org.trenkmann.restsample.model.ShopOrderStatus;
  * @author andreas trenkmann
  */
 @Component
-public class ShopOrderAssembler {
+public class ShopOrderResourceAssembler {
 
   public Resource<ShopOrder> toResource(ShopOrder shopOrder) {
 
