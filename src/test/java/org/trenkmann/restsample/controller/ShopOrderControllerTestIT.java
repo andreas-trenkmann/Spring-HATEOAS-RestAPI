@@ -9,12 +9,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedList;
+import javax.transaction.Transactional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,6 +34,8 @@ import org.trenkmann.restsample.model.ShopCartElement;
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest
+@Transactional
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ShopOrderControllerTestIT {
 
   @Autowired
@@ -52,12 +57,12 @@ public class ShopOrderControllerTestIT {
 
     ShopCartElement shopCartElement = new ShopCartElement();
     shopCartElement.setShopCart(shopCart);
-    shopCartElement.setMp3(mp3Repository.findById(1L).orElseThrow(Exception::new));
+    shopCartElement.setMp3(this.mp3Repository.findById(1L).orElseThrow(Exception::new));
     shopCartElement.setOrderNr(1);
 
     shopCart.getCartElementSet().add(shopCartElement);
     shopCart.setElementCounter(1);
-    shopCartRepository.save(shopCart);
+    this.shopCartRepository.saveAndFlush(shopCart);
   }
 
   @Test
@@ -65,7 +70,7 @@ public class ShopOrderControllerTestIT {
 
     //given
     initialize();
-    ShopCart shopCart = shopCartRepository.findOneById(1L);
+    ShopCart shopCart = this.shopCartRepository.findOneById(1L);
 
     //when
     this.mockMvc.perform(MockMvcRequestBuilders.get("/carts")
@@ -81,7 +86,8 @@ public class ShopOrderControllerTestIT {
   @Test
   public void givenShopCart_whenGetShopCartById_thenReturnHALJson() throws Exception {
     //given
-    ShopCart shopCart = shopCartRepository.findById(1L).orElseThrow(Exception::new);
+    initialize();
+    ShopCart shopCart = this.shopCartRepository.findById(1L).orElseThrow(Exception::new);
 
     //when
     this.mockMvc.perform(MockMvcRequestBuilders.get("/cart/" + shopCart.getId())
@@ -98,7 +104,8 @@ public class ShopOrderControllerTestIT {
   @Test
   public void givenShopCart_whenDeleteShopCartById_thenReturnNoContent() throws Exception {
     //given
-    ShopCart shopCart = shopCartRepository.findOneById(1L);
+    initialize();
+    ShopCart shopCart = this.shopCartRepository.findOneById(1L);
 
     //when
     this.mockMvc.perform(MockMvcRequestBuilders.delete("/cart/" + shopCart.getId())
@@ -113,7 +120,8 @@ public class ShopOrderControllerTestIT {
       throws Exception {
 
     //given
-    ShopCart shopCart = shopCartRepository.findById(1L).orElseThrow(Exception::new);
+    initialize();
+    ShopCart shopCart = this.shopCartRepository.findById(1L).orElseThrow(Exception::new);
     ShopCartElement shopCartElement = shopCartElementRepository.findById(1L)
         .orElseThrow(Exception::new);
 
@@ -130,19 +138,19 @@ public class ShopOrderControllerTestIT {
             endsWith("/mp3/" + shopCartElement.getMp3().getId())));
   }
 
-
   @Test
   public void givenShopCartElement_whenPostShopCartElements_thenReturnHALJsonAndCreated()
       throws Exception {
 
     //given
+    initialize();
     ObjectMapper mapper = new ObjectMapper();
     ShopCart shopCart;
-    shopCart = shopCartRepository.findById(1L).orElseThrow(Exception::new);
-    ShopCartElement shopCartElement = shopCartElementRepository.findOneById(1L);
+    shopCart = this.shopCartRepository.findById(1L).orElseThrow(Exception::new);
+    ShopCartElement shopCartElement = this.shopCartElementRepository.findOneById(1L);
 
     ShopCartElement newShopCartElement = new ShopCartElement();
-    newShopCartElement.setMp3(mp3Repository.findById(5L).orElseThrow(Exception::new));
+    newShopCartElement.setMp3(this.mp3Repository.findById(5L).orElseThrow(Exception::new));
     newShopCartElement.setOrderNr(2);
 
     CartOrderElementDTO element = new CartOrderElementDTO();
@@ -165,13 +173,14 @@ public class ShopOrderControllerTestIT {
       throws Exception {
 
     //given
+    initialize();
     ObjectMapper mapper = new ObjectMapper();
     ShopCart shopCart;
-    shopCart = shopCartRepository.findById(1L).orElseThrow(Exception::new);
-    ShopCartElement shopCartElement = shopCartElementRepository.findOneById(1L);
+    shopCart = this.shopCartRepository.findById(1L).orElseThrow(Exception::new);
+    ShopCartElement shopCartElement = this.shopCartElementRepository.findOneById(1L);
 
     ShopCartElement newShopCartElement = new ShopCartElement();
-    newShopCartElement.setMp3(mp3Repository.findById(5L).orElseThrow(Exception::new));
+    newShopCartElement.setMp3(this.mp3Repository.findById(5L).orElseThrow(Exception::new));
     newShopCartElement.setOrderNr(2);
 
     CartOrderElementDTO element = new CartOrderElementDTO();
