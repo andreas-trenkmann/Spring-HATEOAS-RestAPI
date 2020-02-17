@@ -61,7 +61,7 @@ public class MP3ControllerTestIT {
         .andDo(print())
         //then
         .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$._embedded.mP3s[0].title",is(mp3.getTitle())))
         .andExpect(jsonPath("$._embedded.mP3s[0].artist",is(mp3.getArtist())))
         .andExpect(jsonPath("$._embedded.mP3s[0].album",is(mp3.getAlbum())))
@@ -83,7 +83,7 @@ public class MP3ControllerTestIT {
         .andDo(print())
         //then
         .andExpect(status().is(HttpStatus.CREATED.value()))
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.title", is(mp3.getTitle())))
         .andExpect(header().string("location", startsWith("http://localhost/mp3/")));
   }
@@ -104,7 +104,7 @@ public class MP3ControllerTestIT {
         .andDo(print())
         //then
         .andExpect(status().is(HttpStatus.OK.value()))
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.title", is(mp3.getTitle())))
         .andExpect(jsonPath("$.artist", is(mp3.getArtist())))
         .andExpect(jsonPath("$.length", is(mp3.getLength())));
@@ -123,7 +123,7 @@ public class MP3ControllerTestIT {
         .andDo(print())
         //then
         .andExpect(status().is(HttpStatus.OK.value()))
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(jsonPath("$.title", is(mp3.getTitle())))
         .andExpect(jsonPath("$.artist", is(mp3.getArtist())))
         .andExpect(jsonPath("$.length", is(mp3.getLength())));

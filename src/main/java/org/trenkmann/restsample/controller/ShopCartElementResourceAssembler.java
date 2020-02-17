@@ -1,10 +1,14 @@
 package org.trenkmann.restsample.controller;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceAssembler;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
 import org.trenkmann.restsample.model.ShopCartElement;
 
@@ -12,11 +16,15 @@ import org.trenkmann.restsample.model.ShopCartElement;
  * @author andreas trenkmann
  */
 @Component
-public class ShopCartElementResourceAssembler implements ResourceAssembler<ShopCartElement, Resource<ShopCartElement>> {
+public class ShopCartElementResourceAssembler implements
+    RepresentationModelAssembler<ShopCartElement, EntityModel<ShopCartElement>> {
+
+  private Long lastId;
 
   @Override
-  public Resource<ShopCartElement> toResource(ShopCartElement shopCartElement) {
-    return new Resource<>(shopCartElement,
+  public EntityModel<ShopCartElement> toModel(ShopCartElement shopCartElement) {
+    lastId = shopCartElement.getShopCart().getId();
+    return new EntityModel<>(shopCartElement,
         linkTo(methodOn(ShopcartController.class)
             .getCartElementsByCartId(shopCartElement.getShopCart().getId()))
             .withRel("elementsInCart"),
@@ -27,4 +35,16 @@ public class ShopCartElementResourceAssembler implements ResourceAssembler<ShopC
                 shopCartElement.getId())).withSelfRel());
   }
 
+  @Override
+  public CollectionModel<EntityModel<ShopCartElement>> toCollectionModel(
+      Iterable<? extends ShopCartElement> entities) {
+
+    List<EntityModel<ShopCartElement>> list = StreamSupport.stream(entities.spliterator(), false)
+        .map(this::toModel)
+        .collect(Collectors.toList());
+
+    return new CollectionModel<>(list,
+        linkTo(methodOn(ShopcartController.class).getCartElementsByCartId(lastId)).withSelfRel(),
+        linkTo(methodOn(ShopcartController.class).getCarts()).withRel("carts"));
+  }
 }

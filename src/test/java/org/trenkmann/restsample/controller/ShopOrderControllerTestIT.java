@@ -79,7 +79,7 @@ public class ShopOrderControllerTestIT {
         .accept(MediaTypes.HAL_JSON))
         .andDo(print())
         //then
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$._embedded.shopCarts[0].elementCounter", is(shopCart.getElementCounter())));
@@ -95,7 +95,7 @@ public class ShopOrderControllerTestIT {
         .accept(MediaTypes.HAL_JSON))
         .andDo(print())
         //then
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.elementCounter", is(shopCart.getElementCounter())))
         .andExpect(jsonPath("$._links.elementInCart.href",
@@ -129,7 +129,7 @@ public class ShopOrderControllerTestIT {
         .accept(MediaTypes.HAL_JSON))
         .andDo(print())
         //then
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(status().isOk())
         .andExpect(
             jsonPath("$._embedded.shopCartElements[0].orderNr", is(shopCartElement.getOrderNr())))
@@ -159,7 +159,7 @@ public class ShopOrderControllerTestIT {
         .contentType(MediaTypes.HAL_JSON))
         .andDo(print())
         //then
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.orderNr", is(newShopCartElement.getOrderNr())))
         .andExpect(jsonPath("$._links.mp3.href", endsWith("/mp3/" + element.getMp3id())));
@@ -185,7 +185,7 @@ public class ShopOrderControllerTestIT {
         .contentType(MediaTypes.HAL_JSON))
         .andDo(print())
         //then
-        .andExpect(content().contentType(MediaTypes.HAL_JSON_UTF8))
+        .andExpect(content().contentType(MediaTypes.HAL_JSON))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.orderNr", is(newShopCartElement.getOrderNr())))
         .andExpect(jsonPath("$._links.mp3.href", endsWith("/mp3/" + element.getMp3id())));

@@ -1,15 +1,10 @@
 package org.trenkmann.restsample.controller;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,34 +31,31 @@ public class MP3Controller {
 
   // aggregates
   @GetMapping(path = "/mp3s")
-  public Resources<Resource<MP3>> getAllMP3s() {
-    List<Resource<MP3>> list =  mp3Repository.findAll().stream().map(
-        assembler::toResource)
-        .collect(Collectors.toList());
+  public CollectionModel<EntityModel<MP3>> getAllMP3s() {
 
-    return new Resources<>(list,
-        linkTo(methodOn(MP3Controller.class).getAllMP3s()).withSelfRel());
+    return assembler.toCollectionModel(mp3Repository.findAll());
+
   }
 
   // single item
   @GetMapping(path = "/mp3/{id}")
-  public Resource<MP3> getMP3ById(@PathVariable Long id) {
+  public EntityModel<MP3> getMP3ById(@PathVariable Long id) {
     MP3 mp3 = mp3Repository.findById(id).orElseThrow(() -> new MP3CanNotFoundException(id));
 
-    return assembler.toResource(mp3);
+    return assembler.toModel(mp3);
   }
 
   @PostMapping(path = "/mp3s")
-  public ResponseEntity<ResourceSupport> newMP3(@RequestBody MP3 mp3) throws URISyntaxException {
-    Resource<MP3> resource = assembler.toResource(mp3Repository.save(mp3));
+  public ResponseEntity<?> newMP3(@RequestBody MP3 mp3) throws URISyntaxException {
+    EntityModel<MP3> entityModel = assembler.toModel(mp3Repository.save(mp3));
     return ResponseEntity
         .created(
-            new URI(resource.getId().expand().getHref()))
-        .body(resource);
+            new URI(entityModel.getRequiredLink(IanaLinkRelations.SELF).getHref()))
+        .body(entityModel);
   }
 
   @PutMapping(path = "/mp3/{id}")
-  public Resource<MP3> changeExistingMP3(@PathVariable Long id, @RequestBody MP3 changedMP3) {
+  public EntityModel<MP3> changeExistingMP3(@PathVariable Long id, @RequestBody MP3 changedMP3) {
     MP3 originMP3 = mp3Repository.findById(id).orElse(new MP3(id));
     originMP3.setAlbum(changedMP3.getAlbum());
     originMP3.setAlbumOrderNumber(changedMP3.getAlbumOrderNumber());
@@ -71,11 +63,11 @@ public class MP3Controller {
     originMP3.setLength(changedMP3.getLength());
     originMP3.setTitle(changedMP3.getTitle());
 
-    return assembler.toResource(mp3Repository.save(originMP3));
+    return assembler.toModel(mp3Repository.save(originMP3));
   }
 
   @DeleteMapping(path = "/mp3/{id}")
-  public ResponseEntity<ResourceSupport> deleteMP3(@PathVariable Long id) {
+  public ResponseEntity<?> deleteMP3(@PathVariable Long id) {
     try {
       mp3Repository.deleteById(id);
     } catch (Exception ex) {

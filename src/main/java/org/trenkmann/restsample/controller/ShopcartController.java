@@ -1,16 +1,11 @@
 package org.trenkmann.restsample.controller;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceSupport;
-import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,24 +52,19 @@ public class ShopcartController {
   }
 
   @GetMapping(path = "/carts")
-  public Resources<Resource<ShopCart>> getCarts() {
-    List<Resource<ShopCart>> list = shopCartRepository.findAll().stream()
-        .map(shopCartResourceAssembler::toResource)
-        .collect(Collectors.toList());
-
-    return new Resources<>(list,
-        linkTo(methodOn(ShopcartController.class).getCarts()).withSelfRel());
+  public CollectionModel<EntityModel<ShopCart>> getCarts() {
+    return shopCartResourceAssembler.toCollectionModel(shopCartRepository.findAll());
   }
 
   @GetMapping(path = "/cart/{cartId}")
-  public Resource<ShopCart> getCartById(@PathVariable Long cartId) {
-    return shopCartResourceAssembler.toResource(
+  public EntityModel<ShopCart> getCartById(@PathVariable Long cartId) {
+    return shopCartResourceAssembler.toModel(
         Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
             -> new ShopNoCartFoundException(cartId)));
   }
 
   @DeleteMapping(path = "/cart/{cartId}")
-  public ResponseEntity<ResourceSupport> deleteCartById(@PathVariable Long cartId) {
+  public ResponseEntity<?> deleteCartById(@PathVariable Long cartId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
         -> new ShopNoCartFoundException(cartId));
     shopCartRepository.delete(shopCart);
@@ -83,20 +73,15 @@ public class ShopcartController {
   }
 
   @GetMapping(path = "/cart/{cartId}/elements")
-  public Resources<Resource<ShopCartElement>> getCartElementsByCartId(@PathVariable Long cartId) {
+  public CollectionModel<EntityModel<ShopCartElement>> getCartElementsByCartId(
+      @PathVariable Long cartId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
         -> new ShopNoCartFoundException(cartId));
-    List<Resource<ShopCartElement>> list = shopCart.getCartElementSet().stream()
-        .map(shopCartElementResourceAssembler::toResource)
-        .collect(Collectors.toList());
-
-    return new Resources<>(list,
-        linkTo(methodOn(ShopcartController.class).getCartElementsByCartId(cartId)).withSelfRel(),
-        linkTo(methodOn(ShopcartController.class).getCarts()).withRel("carts"));
+    return shopCartElementResourceAssembler.toCollectionModel(shopCart.getCartElementSet());
   }
 
   @GetMapping(path = "/cart/{cartId}/element/{elementId}")
-  public Resource<ShopCartElement> getCartElementByCartIdAndElementId(@PathVariable Long cartId,
+  public EntityModel<ShopCartElement> getCartElementByCartIdAndElementId(@PathVariable Long cartId,
       @PathVariable Long elementId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
         -> new ShopNoCartFoundException(cartId));
@@ -105,11 +90,11 @@ public class ShopcartController {
         .filter(element -> element.getId().equals(elementId)).findFirst()
         .orElseThrow(() -> new ShopCartNoElementFoundException(elementId));
 
-    return shopCartElementResourceAssembler.toResource(shopCartElement);
+    return shopCartElementResourceAssembler.toModel(shopCartElement);
   }
 
   @DeleteMapping(path = "/cart/{cartId}/element/{elementId}")
-  public ResponseEntity<ResourceSupport> deleteCartElementByCartIdAndElementId(
+  public ResponseEntity<?> deleteCartElementByCartIdAndElementId(
       @PathVariable Long cartId, @PathVariable Long elementId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
         -> new ShopNoCartFoundException(cartId));
@@ -126,7 +111,7 @@ public class ShopcartController {
    * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
    */
   @PostMapping(path = "/cart/{id}/elements")
-  public ResponseEntity<Resource<ShopCartElement>> addElementToCart(@PathVariable Long id,
+  public ResponseEntity<EntityModel<ShopCartElement>> addElementToCart(@PathVariable Long id,
       @RequestBody CartOrderElementDTO orderElementDTO)
       throws URISyntaxException {
 
@@ -136,10 +121,10 @@ public class ShopcartController {
     MP3 mp3 = mp3Repository.findById(orderElementDTO.getMp3id()).orElseThrow(
         () -> new MP3CanNotFoundException(orderElementDTO.getMp3id()));
     ShopCartElement element = shopCartService.addElementToShopCart(shopCart, mp3);
-    Resource<ShopCartElement> shopCartRes = shopCartElementResourceAssembler.toResource(element);
+    EntityModel<ShopCartElement> shopCartRes = shopCartElementResourceAssembler.toModel(element);
 
     return ResponseEntity.created(
-        new URI(shopCartRes.getId().expand().getHref()))
+        new URI(shopCartRes.getRequiredLink(IanaLinkRelations.SELF).expand().getHref()))
         .body(shopCartRes);
   }
 
@@ -147,7 +132,8 @@ public class ShopcartController {
    * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
    */
   @PutMapping(path = "/cart/{id}/element/{elementId}")
-  public ResponseEntity<Resource<ShopCartElement>> addElementToExistingCart(@PathVariable Long id,
+  public ResponseEntity<EntityModel<ShopCartElement>> addElementToExistingCart(
+      @PathVariable Long id,
       @PathVariable Long elementId, @RequestBody CartOrderElementDTO orderElementDTO)
       throws URISyntaxException {
 
@@ -160,16 +146,19 @@ public class ShopcartController {
     Optional<ShopCartElement> shopCartElementOpt = shopCart.getCartElementSet().stream()
         .filter(element -> element.getId().equals(elementId)).findFirst();
 
+    //if object exist alter it and send 200 // OK
     if (shopCartElementOpt.isPresent()) {
       ShopCartElement element = shopCartElementOpt.get();
       return ResponseEntity.ok(shopCartElementResourceAssembler
-          .toResource(shopCartService.alterElementInShopCart(mp3, element)));
+          .toModel(shopCartService.alterElementInShopCart(mp3, element)));
     } else {
 
+      //if object does not exist create it and send 201
       ShopCartElement element = shopCartService.addElementToShopCart(shopCart, mp3);
-      Resource<ShopCartElement> shopCartRes = shopCartElementResourceAssembler.toResource(element);
+      EntityModel<ShopCartElement> shopCartRes = shopCartElementResourceAssembler.toModel(element);
 
-      return ResponseEntity.created(new URI(shopCartRes.getId().expand().getHref()))
+      return ResponseEntity
+          .created(new URI(shopCartRes.getRequiredLink(IanaLinkRelations.SELF).expand().getHref()))
           .body(shopCartRes);
     }
   }
