@@ -116,7 +116,6 @@ public class MP3ControllerTestIT {
 
     //given
     MP3 mp3 = mp3Repository.findById(1L).orElseThrow(Exception::new);
-    ObjectMapper objectMapper = new ObjectMapper();
 
     //when
     this.mockMvc.perform(get("/mp3/" + mp3.getId())
@@ -136,7 +135,6 @@ public class MP3ControllerTestIT {
 
     //given
     MP3 mp3 = mp3Repository.findById(5L).orElseThrow(Exception::new);
-    ObjectMapper objectMapper = new ObjectMapper();
 
     //when
     this.mockMvc.perform(delete("/mp3/" + mp3.getId())

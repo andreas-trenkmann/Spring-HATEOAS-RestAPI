@@ -16,10 +16,11 @@ public class ShopCartResourceAssembler implements ResourceAssembler<ShopCart, Re
 
   @Override
   public Resource<ShopCart> toResource(ShopCart cart) {
-      return new Resource<>( cart,
-          linkTo(methodOn(ShopOrderController.class).getCartById(cart.getId())).withSelfRel(),
-          linkTo(methodOn(ShopOrderController.class).getCartElementsByCartId(cart.getId())).withRel("elementInCart"),
-          linkTo(methodOn(ShopOrderController.class).getCarts()).withRel("carts"));
-    }
+    return new Resource<>(cart,
+        linkTo(methodOn(ShopcartController.class).getCartById(cart.getId())).withSelfRel(),
+        linkTo(methodOn(ShopcartController.class).getCartElementsByCartId(cart.getId()))
+            .withRel("elementInCart"),
+        linkTo(methodOn(ShopcartController.class).getCarts()).withRel("carts"));
+  }
 
 }

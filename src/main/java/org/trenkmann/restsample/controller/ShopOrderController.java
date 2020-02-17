@@ -3,13 +3,13 @@ package org.trenkmann.restsample.controller;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
+import org.springframework.hateoas.VndErrors;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,157 +18,92 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.trenkmann.restsample.data.MP3Repository;
-import org.trenkmann.restsample.data.ShopCartElementRepository;
 import org.trenkmann.restsample.data.ShopCartRepository;
-import org.trenkmann.restsample.exception.MP3CanNotFoundException;
-import org.trenkmann.restsample.exception.ShopCartNoElementFoundException;
+import org.trenkmann.restsample.data.ShopOrderRepository;
 import org.trenkmann.restsample.exception.ShopNoCartFoundException;
-import org.trenkmann.restsample.model.CartOrderElementDTO;
-import org.trenkmann.restsample.model.MP3;
+import org.trenkmann.restsample.exception.ShoporderNotFoundException;
 import org.trenkmann.restsample.model.ShopCart;
-import org.trenkmann.restsample.model.ShopCartElement;
-import org.trenkmann.restsample.service.ShopCartService;
+import org.trenkmann.restsample.model.ShopOrder;
+import org.trenkmann.restsample.model.ShopOrderStatus;
+import org.trenkmann.restsample.model.dto.ShopOrderDTO;
 
 /**
- *
  * @author andreas trenkmann
  */
 @RestController
 public class ShopOrderController {
 
+  private final ShopOrderRepository shopOrderRepository;
+  private final ShopOrderAssembler shopOrderAssembler;
   private final ShopCartRepository shopCartRepository;
-  private final ShopCartService shopCartService;
-  private final ShopCartElementRepository shopCartElementRepository;
-  private final MP3Repository mp3Repository;
-  private final ShopCartResourceAssembler shopCartResourceAssembler;
-  private final ShopCartElementResourceAssembler shopCartElementResourceAssembler;
 
-  public ShopOrderController(ShopCartService shopCartService,
-      ShopCartRepository shopCartRepository, ShopCartElementRepository shopCartElementRepository,
-      MP3Repository mp3Repository, ShopCartResourceAssembler shopCartResourceAssembler, ShopCartElementResourceAssembler shopCartElementResourceAssembler){
-    this.shopCartElementRepository = shopCartElementRepository;
+  ShopOrderController(ShopOrderRepository shopOrderRepository,
+      ShopOrderAssembler shopOrderAssembler, ShopCartRepository shopCartRepository) {
+    this.shopOrderRepository = shopOrderRepository;
+    this.shopOrderAssembler = shopOrderAssembler;
     this.shopCartRepository = shopCartRepository;
-    this.shopCartService = shopCartService;
-    this.mp3Repository = mp3Repository;
-    this.shopCartResourceAssembler = shopCartResourceAssembler;
-    this.shopCartElementResourceAssembler = shopCartElementResourceAssembler;
   }
 
-  @GetMapping(path ="/carts")
-  public Resources<Resource<ShopCart>> getCarts() {
-    List<Resource<ShopCart>> list =  shopCartRepository.findAll().stream()
-        .map( shopCartResourceAssembler::toResource)
-              .collect(Collectors.toList());
+  @GetMapping(path = "/orders")
+  public Resources<Resource<ShopOrder>> getAllOrders() {
 
-    return new Resources<>(list,
-        linkTo(methodOn(ShopOrderController.class).getCarts()).withSelfRel());
+    List<Resource<ShopOrder>> listOfOrders = shopOrderRepository.findAll().stream()
+        .map(shopOrderAssembler::toResource).collect(
+            Collectors.toList());
+
+    return new Resources<>(listOfOrders,
+        linkTo(methodOn(ShopOrderController.class).getAllOrders()).withSelfRel());
   }
 
-  @GetMapping(path ="/cart/{cartId}")
-  public Resource<ShopCart> getCartById(@PathVariable Long cartId){
-    return shopCartResourceAssembler.toResource(
-        Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
-        -> new ShopNoCartFoundException(cartId)));
+  @GetMapping(path = "/order/{orderId}")
+  public Resource<ShopOrder> getOrderById(@PathVariable Long orderId) {
+    ShopOrder shopOrder = shopOrderRepository.findById(orderId)
+        .orElseThrow(() -> new ShoporderNotFoundException(orderId));
+    return shopOrderAssembler.toResource(shopOrder);
   }
 
-  @DeleteMapping(path ="/cart/{cartId}")
-  public ResponseEntity<?> deleteCartById(@PathVariable Long cartId){
-    ShopCart shopCart =  Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
-        -> new ShopNoCartFoundException(cartId));
-    shopCartRepository.delete(shopCart);
+  @PostMapping(path = "/orders")
+  public ResponseEntity<Resource<ShopOrder>> newShopOrder(@RequestBody ShopOrderDTO shopOrderdto) {
 
-    return ResponseEntity.noContent().build();
-  }
+    ShopCart shopCart = shopCartRepository.findById(
+        shopOrderdto.getShopCartId())
+        .orElseThrow(() -> new ShopNoCartFoundException(shopOrderdto.getShopCartId())
+        );
 
-  @GetMapping(path = "/cart/{cartId}/elements")
-  public Resources<Resource<ShopCartElement>> getCartElementsByCartId(@PathVariable Long cartId){
-    ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
-        -> new ShopNoCartFoundException(cartId));
-    List<Resource<ShopCartElement>> list = shopCart.getCartElementSet().stream()
-        .map( shopCartElementResourceAssembler::toResource)
-        .collect(Collectors.toList());
-
-    return new Resources<>(list,
-        linkTo(methodOn(ShopOrderController.class).getCartElementsByCartId(cartId)).withSelfRel(),
-        linkTo(methodOn(ShopOrderController.class).getCarts()).withRel("carts"));
-  }
-
-  @GetMapping(path = "/cart/{cartId}/element/{elementId}")
-  public Resource<ShopCartElement> getCartElementByCartIdAndElementId(@PathVariable Long cartId, @PathVariable Long elementId){
-    ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
-        -> new ShopNoCartFoundException(cartId));
-
-    ShopCartElement shopCartElement = shopCart.getCartElementSet().stream()
-        .filter( element -> element.getId() == elementId).findFirst()
-        .orElseThrow( () -> new ShopCartNoElementFoundException(elementId));
-
-    return shopCartElementResourceAssembler.toResource(shopCartElement);
-  }
-
-  @DeleteMapping(path = "/cart/{cartId}/element/{elementId}")
-  public ResponseEntity<?> deleteCartElementByCartIdAndElementId(@PathVariable Long cartId, @PathVariable Long elementId){
-    ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
-        -> new ShopNoCartFoundException(cartId));
-
-    ShopCartElement shopCartElement = shopCart.getCartElementSet().stream()
-        .filter( element -> element.getId() == elementId).findFirst()
-        .orElseThrow( () -> new ShopCartNoElementFoundException(elementId));
-
-    shopCartElementRepository.delete(shopCartElement);
-    return ResponseEntity.noContent().build();
-  }
-
-  /**
-   * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
-   */
-  @PostMapping(path = "/cart/{id}/elements")
-  public ResponseEntity<Resource<ShopCartElement>> addElementToCart(@PathVariable Long id, @RequestBody CartOrderElementDTO orderElementDTO)
-      throws URISyntaxException {
-
-    ShopCart shopCart = Optional.ofNullable(shopCartService.getShopCart(id)).orElseThrow(() -> new ShopNoCartFoundException(id));
-
-    MP3 mp3 = mp3Repository.findById(orderElementDTO.getMp3id()).orElseThrow(
-            () -> new MP3CanNotFoundException(orderElementDTO.getMp3id()));
-    ShopCartElement element = shopCartService.addElementToShopCart(shopCart, mp3);
-    Resource<ShopCartElement> shopCartRes = shopCartElementResourceAssembler.toResource(element);
-
+    ShopOrder shopOrder = new ShopOrder(shopCart);
+    ShopOrder newShopOrder = shopOrderRepository.save(shopOrder);
     return ResponseEntity.created(
-        new URI(shopCartRes.getId().expand().getHref()))
-        .body(shopCartRes);
+        linkTo(methodOn(ShopOrderController.class).getOrderById(newShopOrder.getId())).toUri())
+        .body(shopOrderAssembler.toResource(newShopOrder));
   }
 
-  /**
-   * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
-   */
-  @PutMapping(path = "/cart/{id}/element/{elementId}")
-  public ResponseEntity<Resource<ShopCartElement>> addElementToExistingCart(@PathVariable Long id, @PathVariable Long elementId, @RequestBody CartOrderElementDTO orderElementDTO)
-      throws URISyntaxException {
-
-    ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(id)).orElseGet(() -> shopCartService.getShopCart(id));
-
-    MP3 mp3 = mp3Repository.findById(orderElementDTO.getMp3id()).orElseThrow(
-            () -> new MP3CanNotFoundException(orderElementDTO.getMp3id()));
-
-    Optional<ShopCartElement> shopCartElementOpt = shopCart.getCartElementSet().stream()
-        .filter( element -> element.getId() == elementId).findFirst();
-
-    if(shopCartElementOpt.isPresent()){
-      ShopCartElement element = shopCartElementOpt.get();
-      return ResponseEntity.ok( shopCartElementResourceAssembler.toResource(shopCartService.alterElementInShopCart(mp3, element)));
-    } else {
-
-      ShopCartElement element = shopCartService.addElementToShopCart(shopCart, mp3);
-      Resource<ShopCartElement> shopCartRes = shopCartElementResourceAssembler.toResource(element);
-
-      return ResponseEntity.created(new URI(shopCartRes.getId().expand().getHref()))
-          .body(shopCartRes);
+  @DeleteMapping(path = "/order/{orderId}/cancel")
+  public ResponseEntity<ResourceSupport> cancelOrder(@PathVariable Long orderId) {
+    ShopOrder shopOrder = shopOrderRepository.findById(orderId)
+        .orElseThrow(() -> new ShoporderNotFoundException(orderId));
+    if (shopOrder.getStatus() == ShopOrderStatus.IN_PROGRESS) {
+      shopOrder.setStatus(ShopOrderStatus.CANCELLED);
+      return ResponseEntity.ok(shopOrderAssembler.toResource(shopOrderRepository.save(shopOrder)));
     }
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(
+        new VndErrors.VndError("Method not allowed",
+            "You can not cancel in state " + shopOrder.getStatus())
+    );
   }
 
-  // NO HAL just for preview purposes with inherit projection
-  @GetMapping(path ="/plainCart/{id}")
-  public ShopCart getCartByIdPlain(@PathVariable Long id){
-    return shopCartRepository.findOneById(id);
+  @PutMapping(path = "/order/{orderId}/complete")
+  public ResponseEntity<ResourceSupport> completeOrder(@PathVariable Long orderId) {
+    ShopOrder shopOrder = shopOrderRepository.findById(orderId)
+        .orElseThrow(() -> new ShoporderNotFoundException(orderId));
+    if (shopOrder.getStatus() == ShopOrderStatus.IN_PROGRESS) {
+      shopOrder.setStatus(ShopOrderStatus.COMPLETED);
+      return ResponseEntity.ok(shopOrderAssembler.toResource(shopOrderRepository.save(shopOrder)));
+    }
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(
+        new VndErrors.VndError("Method not allowed",
+            "You can not complete in state " + shopOrder.getStatus())
+    );
   }
+
+
 }

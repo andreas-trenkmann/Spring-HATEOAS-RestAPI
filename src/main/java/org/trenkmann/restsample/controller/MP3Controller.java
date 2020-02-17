@@ -6,9 +6,9 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,11 +54,11 @@ public class MP3Controller {
   }
 
   @PostMapping(path = "/mp3s")
-  public ResponseEntity<?> newMP3(@RequestBody MP3 mp3) throws URISyntaxException {
-    Resource resource =  assembler.toResource(mp3Repository.save(mp3));
+  public ResponseEntity<ResourceSupport> newMP3(@RequestBody MP3 mp3) throws URISyntaxException {
+    Resource<MP3> resource = assembler.toResource(mp3Repository.save(mp3));
     return ResponseEntity
         .created(
-          new URI(resource.getId().expand().getHref()))
+            new URI(resource.getId().expand().getHref()))
         .body(resource);
   }
 
@@ -75,7 +75,7 @@ public class MP3Controller {
   }
 
   @DeleteMapping(path = "/mp3/{id}")
-  public ResponseEntity<?> deleteMP3(@PathVariable Long id) {
+  public ResponseEntity<ResourceSupport> deleteMP3(@PathVariable Long id) {
     try {
       mp3Repository.deleteById(id);
     } catch (Exception ex) {

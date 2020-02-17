@@ -11,13 +11,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class ShopCart implements Serializable {
 
-  public ShopCart(){
-  }
+  private static final long serialVersionUID = 1905122034950251207L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,11 +48,10 @@ public class ShopCart implements Serializable {
 
   }
 
-  public String toString(){
+  public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append("\n class ShopCart{\n")
-    .append("id: "+ elementCounter +" \n");
-    cartElementSet.stream().forEach(element -> builder.append(element.toString()));
+    builder.append("\n class ShopCart{\n").append("id: ").append(elementCounter).append(" \n");
+    cartElementSet.forEach(element -> builder.append(element.toString()));
     builder.append("\n}");
     return builder.toString();
   }

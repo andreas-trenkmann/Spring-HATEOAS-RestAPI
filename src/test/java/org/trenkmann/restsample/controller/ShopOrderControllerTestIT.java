@@ -25,9 +25,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.trenkmann.restsample.data.MP3Repository;
 import org.trenkmann.restsample.data.ShopCartElementRepository;
 import org.trenkmann.restsample.data.ShopCartRepository;
-import org.trenkmann.restsample.model.CartOrderElementDTO;
 import org.trenkmann.restsample.model.ShopCart;
 import org.trenkmann.restsample.model.ShopCartElement;
+import org.trenkmann.restsample.model.dto.CartOrderElementDTO;
 
 /**
  * @author andreas trenkmann
@@ -190,6 +190,4 @@ public class ShopOrderControllerTestIT {
         .andExpect(jsonPath("$.orderNr", is(newShopCartElement.getOrderNr())))
         .andExpect(jsonPath("$._links.mp3.href", endsWith("/mp3/" + element.getMp3id())));
   }
-
-
 }

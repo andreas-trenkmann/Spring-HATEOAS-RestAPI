@@ -1,4 +1,4 @@
-package org.trenkmann.restsample.model;
+package org.trenkmann.restsample.model.dto;
 
 import lombok.Data;
 
