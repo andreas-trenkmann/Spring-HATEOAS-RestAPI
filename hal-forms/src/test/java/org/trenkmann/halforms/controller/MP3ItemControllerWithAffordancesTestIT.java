@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.trenkmann.halforms.config.HypermediaConfiguration;
 import org.trenkmann.halforms.data.MP3Repository;
-import org.trenkmann.halforms.model.MP3;
+import org.trenkmann.halforms.model.MP3Item;
 
 /**
  * @author andreas trenkmann
@@ -31,7 +31,7 @@ import org.trenkmann.halforms.model.MP3;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import({HypermediaConfiguration.class})
-public class MP3ControllerWithAffordancesTestIT {
+public class MP3ItemControllerWithAffordancesTestIT {
 
   @Autowired
   private MockMvc mvc;
@@ -43,8 +43,8 @@ public class MP3ControllerWithAffordancesTestIT {
 
     //given
     BDDMockito.given(repository.findAll()).willReturn(Arrays.asList( //
-        new MP3(4L, "title", "artist", "album", "30:20", 1), //
-        new MP3(6L, "title", "artist", "album", "30:20", 2)));
+        new MP3Item(4L, "title", "artist", "album", "30:20", 1), //
+        new MP3Item(6L, "title", "artist", "album", "30:20", 2)));
 
     //when
     mvc.perform(get("/mp3s").accept(MediaTypes.HAL_FORMS_JSON_VALUE)).andDo(

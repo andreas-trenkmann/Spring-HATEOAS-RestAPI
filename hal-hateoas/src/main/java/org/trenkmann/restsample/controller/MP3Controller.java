@@ -1,5 +1,6 @@
 package org.trenkmann.restsample.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.springframework.hateoas.CollectionModel;
@@ -17,12 +18,14 @@ import org.trenkmann.restsample.data.MP3Repository;
 import org.trenkmann.restsample.exception.MP3CanNotDeleteException;
 import org.trenkmann.restsample.exception.MP3CanNotFoundException;
 import org.trenkmann.restsample.model.MP3;
+import org.trenkmann.restsample.model.dto.MP3DTO;
 
 @RestController
 public class MP3Controller {
 
   private final MP3ResourceAssembler assembler;
   private MP3Repository mp3Repository;
+  private final ObjectMapper mapper = new ObjectMapper();
 
   MP3Controller(MP3Repository mp3Repository, MP3ResourceAssembler assembler) {
     this.assembler = assembler;
@@ -46,7 +49,8 @@ public class MP3Controller {
   }
 
   @PostMapping(path = "/mp3s")
-  public ResponseEntity<?> newMP3(@RequestBody MP3 mp3) throws URISyntaxException {
+  public ResponseEntity<?> newMP3(@RequestBody MP3DTO mp3DTO) throws URISyntaxException {
+    MP3 mp3 = mapper.convertValue(mp3DTO, MP3.class);
     EntityModel<MP3> entityModel = assembler.toModel(mp3Repository.save(mp3));
     return ResponseEntity
         .created(
@@ -55,7 +59,8 @@ public class MP3Controller {
   }
 
   @PutMapping(path = "/mp3/{id}")
-  public EntityModel<MP3> changeExistingMP3(@PathVariable Long id, @RequestBody MP3 changedMP3) {
+  public EntityModel<MP3> changeExistingMP3(@PathVariable Long id, @RequestBody MP3 mp3DTO) {
+    MP3 changedMP3 = mapper.convertValue(mp3DTO, MP3.class);
     MP3 originMP3 = mp3Repository.findById(id).orElse(new MP3(id));
     originMP3.setAlbum(changedMP3.getAlbum());
     originMP3.setAlbumOrderNumber(changedMP3.getAlbumOrderNumber());

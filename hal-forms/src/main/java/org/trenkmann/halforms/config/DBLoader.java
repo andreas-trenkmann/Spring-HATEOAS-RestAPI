@@ -9,7 +9,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.trenkmann.halforms.data.MP3Repository;
-import org.trenkmann.halforms.model.MP3;
+import org.trenkmann.halforms.model.MP3Item;
 
 
 @Component
@@ -83,14 +83,15 @@ public class DBLoader implements ApplicationRunner {
           String album = albums[i % albums.length];
           String firstName = artistFirstName[i % artistFirstName.length];
           String lastname = artistLastName[i % artistLastName.length];
-          MP3 mp3 = new MP3(random.nextInt(1000 - 200) + bound, String.format(template, buzzword),
+          MP3Item mp3Item = new MP3Item(random.nextInt(1000 - 200) + bound,
+              String.format(template, buzzword),
               String.format(firstName, lastname), album,
               random.nextInt(60 - 59) + 59 + ":" + random.nextInt(60 - 59) + 59,
               random.nextInt(5 - 4) + 5);
 
-          mP3Repository.save(mp3);
+          mP3Repository.save(mp3Item);
 
-          logger.info("JPA-Data Entry = {}", mp3);
+          logger.info("JPA-Data Entry = {}", mp3Item);
 
         });
 

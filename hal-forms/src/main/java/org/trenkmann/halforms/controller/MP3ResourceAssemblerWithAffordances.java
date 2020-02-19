@@ -12,14 +12,14 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import org.trenkmann.halforms.model.MP3;
+import org.trenkmann.halforms.model.MP3Item;
 
 @Component
 public class MP3ResourceAssemblerWithAffordances implements
-    RepresentationModelAssembler<MP3, EntityModel<MP3>> {
+    RepresentationModelAssembler<MP3Item, EntityModel<MP3Item>> {
 
   @Override
-  public EntityModel<MP3> toModel(MP3 entity) {
+  public EntityModel<MP3Item> toModel(MP3Item entity) {
     return new EntityModel<>(entity,
         linkTo(methodOn(MP3ControllerWithAffordances.class).getMP3ById(entity.getId()))
             .withSelfRel()
@@ -31,10 +31,10 @@ public class MP3ResourceAssemblerWithAffordances implements
   }
 
   @Override
-  public CollectionModel<EntityModel<MP3>> toCollectionModel(
-      Iterable<? extends MP3> entities) {
+  public CollectionModel<EntityModel<MP3Item>> toCollectionModel(
+      Iterable<? extends MP3Item> entities) {
 
-    List<EntityModel<MP3>> list = StreamSupport.stream(entities.spliterator(), false)
+    List<EntityModel<MP3Item>> list = StreamSupport.stream(entities.spliterator(), false)
         .map(this::toModel)
         .collect(Collectors.toList());
 

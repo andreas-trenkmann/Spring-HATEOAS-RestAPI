@@ -1,5 +1,6 @@
 package org.trenkmann.halforms.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.springframework.hateoas.CollectionModel;
@@ -16,14 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.trenkmann.halforms.data.MP3Repository;
 import org.trenkmann.halforms.exception.MP3CanNotDeleteException;
 import org.trenkmann.halforms.exception.MP3CanNotFoundException;
-import org.trenkmann.halforms.model.MP3;
+import org.trenkmann.halforms.model.MP3Item;
+import org.trenkmann.halforms.model.MP3ItemDTO;
 
 
 @RestController
 public class MP3ControllerWithAffordances {
 
   private final MP3ResourceAssemblerWithAffordances assembler;
-  private MP3Repository mp3Repository;
+  private final MP3Repository mp3Repository;
+  private final ObjectMapper mapper = new ObjectMapper();
 
   MP3ControllerWithAffordances(MP3Repository mp3Repository,
       MP3ResourceAssemblerWithAffordances assembler) {
@@ -33,7 +36,7 @@ public class MP3ControllerWithAffordances {
 
   // aggregates
   @GetMapping(path = "/mp3s")
-  public CollectionModel<EntityModel<MP3>> getAllMP3s() {
+  public CollectionModel<EntityModel<MP3Item>> getAllMP3s() {
 
     return assembler.toCollectionModel(mp3Repository.findAll());
 
@@ -41,15 +44,17 @@ public class MP3ControllerWithAffordances {
 
   // single item
   @GetMapping(path = "/mp3/{id}")
-  public EntityModel<MP3> getMP3ById(@PathVariable Long id) {
-    MP3 mp3 = mp3Repository.findById(id).orElseThrow(() -> new MP3CanNotFoundException(id));
+  public EntityModel<MP3Item> getMP3ById(@PathVariable Long id) {
+    MP3Item mp3Item = mp3Repository.findById(id).orElseThrow(() -> new MP3CanNotFoundException(id));
 
-    return assembler.toModel(mp3);
+    return assembler.toModel(mp3Item);
   }
 
   @PostMapping(path = "/mp3s")
-  public ResponseEntity<?> newMP3(@RequestBody MP3 mp3) throws URISyntaxException {
-    EntityModel<MP3> entityModel = assembler.toModel(mp3Repository.save(mp3));
+  public ResponseEntity<?> newMP3(@RequestBody MP3ItemDTO mp3ItemDTO) throws URISyntaxException {
+
+    MP3Item mp3Item = mapper.convertValue(mp3ItemDTO, MP3Item.class);
+    EntityModel<MP3Item> entityModel = assembler.toModel(mp3Repository.save(mp3Item));
     return ResponseEntity
         .created(
             new URI(entityModel.getRequiredLink(IanaLinkRelations.SELF).getHref()))
@@ -57,15 +62,18 @@ public class MP3ControllerWithAffordances {
   }
 
   @PutMapping(path = "/mp3/{id}")
-  public EntityModel<MP3> changeExistingMP3(@PathVariable Long id, @RequestBody MP3 changedMP3) {
-    MP3 originMP3 = mp3Repository.findById(id).orElse(new MP3(id));
-    originMP3.setAlbum(changedMP3.getAlbum());
-    originMP3.setAlbumOrderNumber(changedMP3.getAlbumOrderNumber());
-    originMP3.setArtist(changedMP3.getArtist());
-    originMP3.setLength(changedMP3.getLength());
-    originMP3.setTitle(changedMP3.getTitle());
+  public EntityModel<MP3Item> changeExistingMP3(@PathVariable Long id,
+      @RequestBody MP3Item mp3ItemDTO) {
 
-    return assembler.toModel(mp3Repository.save(originMP3));
+    MP3Item changedMP3Item = mapper.convertValue(mp3ItemDTO, MP3Item.class);
+    MP3Item originMP3Item = mp3Repository.findById(id).orElse(new MP3Item(id));
+    originMP3Item.setAlbum(changedMP3Item.getAlbum());
+    originMP3Item.setAlbumOrderNumber(changedMP3Item.getAlbumOrderNumber());
+    originMP3Item.setArtist(changedMP3Item.getArtist());
+    originMP3Item.setLength(changedMP3Item.getLength());
+    originMP3Item.setTitle(changedMP3Item.getTitle());
+
+    return assembler.toModel(mp3Repository.save(originMP3Item));
   }
 
   @DeleteMapping(path = "/mp3/{id}")

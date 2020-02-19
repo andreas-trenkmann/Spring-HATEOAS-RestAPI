@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @NoArgsConstructor
-public class MP3 implements Serializable {
+public class MP3Item implements Serializable {
 
 	private static final long serialVersionUID = 1905111034950251207L;
 
@@ -39,7 +39,7 @@ public class MP3 implements Serializable {
 
 	private int albumOrderNumber;
 
-	public MP3(long id, String title, String artist, String album, String length,
+	public MP3Item(long id, String title, String artist, String album, String length,
 			int albumOrderNumber) {
 		super();
 		this.id = id;
@@ -50,7 +50,7 @@ public class MP3 implements Serializable {
 		this.albumOrderNumber = albumOrderNumber;
 	}
 
-	public MP3(Long id) {
+	public MP3Item(Long id) {
 		this.id = id;
 		this.title = "";
 	}
