@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.mediatype.vnderrors.VndErrors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,7 +72,7 @@ public class ShopOrderController {
   }
 
   @DeleteMapping(path = "/order/{orderId}/cancel")
-  public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
+  public ResponseEntity<RepresentationModel> cancelOrder(@PathVariable Long orderId) {
     ShopOrder shopOrder = shopOrderRepository.findById(orderId)
         .orElseThrow(() -> new ShoporderNotFoundException(orderId));
     if (shopOrder.getStatus() == ShopOrderStatus.IN_PROGRESS) {
@@ -85,7 +86,7 @@ public class ShopOrderController {
   }
 
   @PutMapping(path = "/order/{orderId}/complete")
-  public ResponseEntity<?> completeOrder(@PathVariable Long orderId) {
+  public ResponseEntity<RepresentationModel> completeOrder(@PathVariable Long orderId) {
     ShopOrder shopOrder = shopOrderRepository.findById(orderId)
         .orElseThrow(() -> new ShoporderNotFoundException(orderId));
     if (shopOrder.getStatus() == ShopOrderStatus.IN_PROGRESS) {

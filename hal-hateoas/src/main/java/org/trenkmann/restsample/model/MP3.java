@@ -53,6 +53,9 @@ public class MP3 implements Serializable {
   public MP3(Long id) {
     this.id = id;
     this.title = "";
+    this.artist = "";
+    this.album = "";
+    this.length = "";
   }
 
   @Override

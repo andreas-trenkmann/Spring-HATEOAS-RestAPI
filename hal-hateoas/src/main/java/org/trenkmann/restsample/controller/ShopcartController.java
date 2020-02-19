@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,7 +65,7 @@ public class ShopcartController {
   }
 
   @DeleteMapping(path = "/cart/{cartId}")
-  public ResponseEntity<?> deleteCartById(@PathVariable Long cartId) {
+  public ResponseEntity<RepresentationModel> deleteCartById(@PathVariable Long cartId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
         -> new ShopNoCartFoundException(cartId));
     shopCartRepository.delete(shopCart);
@@ -94,7 +95,7 @@ public class ShopcartController {
   }
 
   @DeleteMapping(path = "/cart/{cartId}/element/{elementId}")
-  public ResponseEntity<?> deleteCartElementByCartIdAndElementId(
+  public ResponseEntity<RepresentationModel> deleteCartElementByCartIdAndElementId(
       @PathVariable Long cartId, @PathVariable Long elementId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
         -> new ShopNoCartFoundException(cartId));
