@@ -52,6 +52,8 @@
         <version>3.0.0-M4</version>
         <executions>
           <execution>
+            <id>failsafe-integration-tests</id>
+            <phase>integration-test</phase>
             <goals>
               <goal>integration-test</goal>
               <goal>verify</goal>
