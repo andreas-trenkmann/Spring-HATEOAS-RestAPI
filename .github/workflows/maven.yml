@@ -14,7 +14,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn -B isntall --file pom.xml
+      run: mvn -B install --file pom.xml
     - name: SonarCloud analyzes
       run: mvn -B sonar:sonar -Dsonar.host.url=$HOST -Dsonar.organization=$ORG -Dsonar.projectKey=$KEY -Dsonar.login=$LOGIN
       env:
