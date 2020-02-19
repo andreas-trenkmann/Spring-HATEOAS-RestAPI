@@ -22,3 +22,4 @@ jobs:
           HOST: "https://sonarcloud.io"
           ORG: ${{ secrets.sonar_organization }}
           KEY: ${{ secrets.sonar_project_key }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
