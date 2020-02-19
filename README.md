@@ -8,4 +8,5 @@ The following features have been used in this project:
 * ReST
 * HAL  
 * HATEOAS
+* HAL-Forms with affordances  
 * JPA
