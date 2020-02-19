@@ -8,7 +8,7 @@
   <artifactId>rest-api</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>Parent</name>
+  <name>RestSample-Project</name>
   <description>Sample project for REsT-Services with HAL specifications and HATEOAS</description>
 
   <parent>
