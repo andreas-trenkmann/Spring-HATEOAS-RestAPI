@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.trenkmann.restsample.RestapiApplication;
 import org.trenkmann.restsample.data.MP3Repository;
 import org.trenkmann.restsample.model.MP3;
@@ -143,6 +144,17 @@ public class MP3ControllerTestIT {
         .andDo(print())
         //then
         .andExpect(status().is(HttpStatus.NO_CONTENT.value()));
+  }
+
+  @Test
+  public void given_whenGetMP3ById_thenReturnMP3NotFoundException() throws Exception {
+    //given
+    //nothing
+    //when
+    mockMvc.perform(get("/mp3/300").accept(MediaTypes.HAL_FORMS_JSON_VALUE)).andDo(
+        print()) //
+        .andExpect(status().isNotFound()) //
+        .andExpect(MockMvcResultMatchers.content().string("Can not found MP3 with id 300"));
   }
 
 

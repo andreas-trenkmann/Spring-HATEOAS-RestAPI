@@ -20,6 +20,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.trenkmann.halforms.config.HypermediaConfiguration;
 import org.trenkmann.halforms.data.MP3Repository;
 import org.trenkmann.halforms.model.MP3Item;
@@ -55,6 +56,18 @@ public class MP3ItemControllerWithAffordancesTestIT {
         .andExpect(jsonPath("$._embedded.mP3Items[0]._templates.default.method", is("put"))) //
         .andExpect(
             jsonPath("$._embedded.mP3Items[0]._links.self.href", is("http://localhost/mp3/4")));
+  }
+
+  @Test
+  public void givenMP3_whenGetMP3ById_thenReturnMP3ItemNotFoundException() throws Exception {
+    //given
+    BDDMockito.given(repository.findAll()).willReturn(Arrays.asList( //
+        new MP3Item(4L, "title", "artist", "album", "30:20", 1)));
+    //when
+    mvc.perform(get("/mp3/2").accept(MediaTypes.HAL_FORMS_JSON_VALUE)).andDo(
+        print()) //
+        .andExpect(status().isNotFound()) //
+        .andExpect(MockMvcResultMatchers.content().string("Can not found MP3 with id 2"));
   }
 
 }
