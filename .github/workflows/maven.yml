@@ -14,9 +14,9 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -Pfailsafe
+      run: mvn -B isntall --file pom.xml
     - name: SonarCloud analyzes
-      run: mvn -B sonar:sonar -Dsonar.host.url=$HOST -Dsonar.organization=$ORG -Dsonar.projectKey=$KEY -Dsonar.login=$LOGIN -Pfailsafe
+      run: mvn -B sonar:sonar -Dsonar.host.url=$HOST -Dsonar.organization=$ORG -Dsonar.projectKey=$KEY -Dsonar.login=$LOGIN
       env:
           LOGIN: ${{ secrets.sonar_login }}
           HOST: "https://sonarcloud.io"
