@@ -4,6 +4,7 @@ This aims to show the proper usage of [HAL-Specification](http://stateless.co/ha
 
 The following features have been used in this project:
 * ReST
-* HAL  
+* HAL
+* HAL-Forms with affordances  
 * HATEOAS
 * JPA
