@@ -22,16 +22,6 @@ public class MP3DTO implements Serializable {
 
   private int albumOrderNumber;
 
-  public MP3DTO(String title, String artist, String album, String length,
-      int albumOrderNumber) {
-    super();
-    this.title = title;
-    this.artist = artist;
-    this.album = album;
-    this.length = length;
-    this.albumOrderNumber = albumOrderNumber;
-  }
-
   @Override
   public String toString() {
     return "MP3 [title=" + title + ", artist=" + artist + ", album=" + album
