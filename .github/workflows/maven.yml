@@ -18,7 +18,7 @@ jobs:
     - name: SonarCloud Scan
       run: mvn -B sonar:sonar -Dsonar.host.url=$HOST -Dsonar.organization=$ORG -Dsonar.projectKey=$KEY -Dsonar.login=$LOGIN
       env:
-          LOGIN: ${{secrets.sonar_login}}
+          LOGIN: ${{ secrets.sonar_login }}
           HOST: "https://sonarcloud.io"
-          ORG: ${{secrets.sonar_organization}}
-          KEY: ${{secrets.sonar_project_key}}
+          ORG: ${{ secrets.sonar_organization }}
+          KEY: ${{ secrets.sonar_project_key }}
