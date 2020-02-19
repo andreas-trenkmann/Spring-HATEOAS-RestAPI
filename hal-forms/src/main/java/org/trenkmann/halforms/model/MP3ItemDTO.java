@@ -1,6 +1,7 @@
 package org.trenkmann.halforms.model;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,12 +11,13 @@ public class MP3ItemDTO implements Serializable {
 
 	private static final long serialVersionUID = 1905111034950251207L;
 
+	@NotNull
 	private String title;
-
+	@NotNull
 	private String artist;
 
 	private String album;
-
+	@NotNull
 	private String length;
 
 	private int albumOrderNumber;

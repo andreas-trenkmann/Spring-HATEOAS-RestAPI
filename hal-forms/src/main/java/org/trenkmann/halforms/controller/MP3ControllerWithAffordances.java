@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,7 +52,8 @@ public class MP3ControllerWithAffordances {
   }
 
   @PostMapping(path = "/mp3s")
-  public ResponseEntity<?> newMP3(@RequestBody MP3ItemDTO mp3ItemDTO) throws URISyntaxException {
+  public ResponseEntity<RepresentationModel> newMP3(@RequestBody MP3ItemDTO mp3ItemDTO)
+      throws URISyntaxException {
 
     MP3Item mp3Item = mapper.convertValue(mp3ItemDTO, MP3Item.class);
     EntityModel<MP3Item> entityModel = assembler.toModel(mp3Repository.save(mp3Item));
@@ -63,7 +65,7 @@ public class MP3ControllerWithAffordances {
 
   @PutMapping(path = "/mp3/{id}")
   public EntityModel<MP3Item> changeExistingMP3(@PathVariable Long id,
-      @RequestBody MP3Item mp3ItemDTO) {
+      @RequestBody MP3ItemDTO mp3ItemDTO) {
 
     MP3Item changedMP3Item = mapper.convertValue(mp3ItemDTO, MP3Item.class);
     MP3Item originMP3Item = mp3Repository.findById(id).orElse(new MP3Item(id));
@@ -77,7 +79,7 @@ public class MP3ControllerWithAffordances {
   }
 
   @DeleteMapping(path = "/mp3/{id}")
-  public ResponseEntity<?> deleteMP3(@PathVariable Long id) {
+  public ResponseEntity<RepresentationModel> deleteMP3(@PathVariable Long id) {
     try {
       mp3Repository.deleteById(id);
     } catch (Exception ex) {

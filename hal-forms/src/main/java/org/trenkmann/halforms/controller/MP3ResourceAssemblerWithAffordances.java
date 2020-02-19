@@ -8,6 +8,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.SneakyThrows;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -30,6 +31,7 @@ public class MP3ResourceAssemblerWithAffordances implements
         linkTo(methodOn(MP3ControllerWithAffordances.class).getAllMP3s()).withRel("mp3s"));
   }
 
+  @SneakyThrows
   @Override
   public CollectionModel<EntityModel<MP3Item>> toCollectionModel(
       Iterable<? extends MP3Item> entities) {
@@ -39,6 +41,7 @@ public class MP3ResourceAssemblerWithAffordances implements
         .collect(Collectors.toList());
 
     return new CollectionModel<>(list,
-        linkTo(methodOn(MP3ControllerWithAffordances.class).getAllMP3s()).withSelfRel());
+        linkTo(methodOn(MP3ControllerWithAffordances.class).getAllMP3s()).withSelfRel()
+            .andAffordance(afford(methodOn(MP3ControllerWithAffordances.class).newMP3(null))));
   }
 }

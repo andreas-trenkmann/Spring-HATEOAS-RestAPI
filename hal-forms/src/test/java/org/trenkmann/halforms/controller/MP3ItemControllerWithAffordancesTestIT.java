@@ -51,9 +51,10 @@ public class MP3ItemControllerWithAffordancesTestIT {
         print()) //
         .andExpect(status().isOk()) //
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_FORMS_JSON_VALUE)) //
-        .andExpect(jsonPath("$._embedded.mP3s[0].id", is(4))) //
-        .andExpect(jsonPath("$._embedded.mP3s[0]._templates.default.method", is("put"))) //
-        .andExpect(jsonPath("$._embedded.mP3s[0]._links.self.href", is("http://localhost/mp3/4")));
+        .andExpect(jsonPath("$._embedded.mP3Items[0].id", is(4))) //
+        .andExpect(jsonPath("$._embedded.mP3Items[0]._templates.default.method", is("put"))) //
+        .andExpect(
+            jsonPath("$._embedded.mP3Items[0]._links.self.href", is("http://localhost/mp3/4")));
   }
 
 }
