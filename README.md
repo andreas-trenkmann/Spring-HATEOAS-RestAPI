@@ -4,9 +4,10 @@
 
 This aims to show the proper usage of [HAL-Specification](http://stateless.co/hal_specification.html) and the [HATEOAS](https://spring.io/projects/spring-hateoas) principles
 
-The following features have been used in this project:
+The following features have been used in the underlying projects:
 * ReST
 * HAL  
 * HATEOAS
 * HAL-Forms with affordances  
 * JPA
+* Spring Security

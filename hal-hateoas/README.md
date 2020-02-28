@@ -8,3 +8,4 @@ The following features have been used in this project:
 * HAL-Forms with affordances  
 * HATEOAS
 * JPA
+* Spring Security
