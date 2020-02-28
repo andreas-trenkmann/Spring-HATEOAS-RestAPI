@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,12 +32,15 @@ import org.trenkmann.restsample.model.dto.CartOrderElementDTO;
 
 /**
  * @author andreas trenkmann
+ *
+ * here with dirtiesContext to start each test in a clean dataset
  */
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest
 @Transactional
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
+@ActiveProfiles(value = "insecure")
 public class ShopOrderControllerTestIT {
 
   @Autowired
