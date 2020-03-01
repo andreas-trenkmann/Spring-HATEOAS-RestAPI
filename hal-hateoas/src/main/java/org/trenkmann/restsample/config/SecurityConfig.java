@@ -60,7 +60,7 @@ public class SecurityConfig {
     @Override
     public void configure(HttpSecurity http) throws Exception {
       http.authorizeRequests()
-          .antMatchers("/")
+          .antMatchers("/", "/actuator/info", "/oas/**", "/webjars/**", "/v3/api-docs/**")
           .permitAll()
           .anyRequest()
           .authenticated()

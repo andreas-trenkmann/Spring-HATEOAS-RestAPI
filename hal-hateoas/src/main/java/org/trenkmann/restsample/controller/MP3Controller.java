@@ -1,6 +1,8 @@
 package org.trenkmann.restsample.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.springframework.hateoas.CollectionModel;
@@ -21,6 +23,7 @@ import org.trenkmann.restsample.exception.MP3CanNotFoundException;
 import org.trenkmann.restsample.model.MP3;
 import org.trenkmann.restsample.model.dto.MP3DTO;
 
+
 @RestController
 public class MP3Controller {
 
@@ -34,6 +37,7 @@ public class MP3Controller {
   }
 
   // aggregates
+  @Operation(summary = "collects all MP3 in storage", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/mp3s")
   public CollectionModel<EntityModel<MP3>> getAllMP3s() {
 
@@ -42,6 +46,7 @@ public class MP3Controller {
   }
 
   // single item
+  @Operation(summary = "get a MP3 out of the storage", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/mp3/{id}")
   public EntityModel<MP3> getMP3ById(@PathVariable Long id) {
     MP3 mp3 = mp3Repository.findById(id).orElseThrow(() -> new MP3CanNotFoundException(id));
@@ -49,6 +54,7 @@ public class MP3Controller {
     return assembler.toModel(mp3);
   }
 
+  @Operation(summary = "send a single MP3 to storage", security = @SecurityRequirement(name = "basicScheme"))
   @PostMapping(path = "/mp3s")
   public ResponseEntity<RepresentationModel> newMP3(@RequestBody MP3DTO mp3DTO)
       throws URISyntaxException {
@@ -60,6 +66,7 @@ public class MP3Controller {
         .body(entityModel);
   }
 
+  @Operation(summary = "alter or create a single MP3 in storage", security = @SecurityRequirement(name = "basicScheme"))
   @PutMapping(path = "/mp3/{id}")
   public EntityModel<MP3> changeExistingMP3(@PathVariable Long id, @RequestBody MP3DTO mp3DTO) {
     MP3 changedMP3 = mapper.convertValue(mp3DTO, MP3.class);
@@ -73,6 +80,7 @@ public class MP3Controller {
     return assembler.toModel(mp3Repository.save(originMP3));
   }
 
+  @Operation(summary = "alter or create a single MP3 in storage", security = @SecurityRequirement(name = "basicScheme"))
   @DeleteMapping(path = "/mp3/{id}")
   public ResponseEntity<RepresentationModel> deleteMP3(@PathVariable Long id) {
     try {

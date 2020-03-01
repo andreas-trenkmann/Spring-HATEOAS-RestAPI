@@ -1,5 +1,7 @@
 package org.trenkmann.restsample.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -52,11 +54,13 @@ public class ShopcartController {
     this.shopCartElementResourceAssembler = shopCartElementResourceAssembler;
   }
 
+  @Operation(summary = "collects all existing carts from storage", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/carts")
   public CollectionModel<EntityModel<ShopCart>> getCarts() {
     return shopCartResourceAssembler.toCollectionModel(shopCartRepository.findAll());
   }
 
+  @Operation(summary = "get a single cart out of the storage", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/cart/{cartId}")
   public EntityModel<ShopCart> getCartById(@PathVariable Long cartId) {
     return shopCartResourceAssembler.toModel(
@@ -64,6 +68,7 @@ public class ShopcartController {
             -> new ShopNoCartFoundException(cartId)));
   }
 
+  @Operation(summary = "delete a single cart out of the storage", security = @SecurityRequirement(name = "basicScheme"))
   @DeleteMapping(path = "/cart/{cartId}")
   public ResponseEntity<RepresentationModel> deleteCartById(@PathVariable Long cartId) {
     ShopCart shopCart = Optional.ofNullable(shopCartRepository.findOneById(cartId)).orElseThrow(()
@@ -73,6 +78,7 @@ public class ShopcartController {
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(summary = "get all elements from a certain cart from storage", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/cart/{cartId}/elements")
   public CollectionModel<EntityModel<ShopCartElement>> getCartElementsByCartId(
       @PathVariable Long cartId) {
@@ -81,6 +87,7 @@ public class ShopcartController {
     return shopCartElementResourceAssembler.toCollectionModel(shopCart.getCartElementSet());
   }
 
+  @Operation(summary = "get a single element from a certain cart from storage", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/cart/{cartId}/element/{elementId}")
   public EntityModel<ShopCartElement> getCartElementByCartIdAndElementId(@PathVariable Long cartId,
       @PathVariable Long elementId) {
@@ -94,6 +101,7 @@ public class ShopcartController {
     return shopCartElementResourceAssembler.toModel(shopCartElement);
   }
 
+  @Operation(summary = "delete a single element from a certain cart from storage", security = @SecurityRequirement(name = "basicScheme"))
   @DeleteMapping(path = "/cart/{cartId}/element/{elementId}")
   public ResponseEntity<RepresentationModel> deleteCartElementByCartIdAndElementId(
       @PathVariable Long cartId, @PathVariable Long elementId) {
@@ -111,6 +119,7 @@ public class ShopcartController {
   /**
    * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
    */
+  @Operation(summary = "create a single element from a certain cart to storage", security = @SecurityRequirement(name = "basicScheme"))
   @PostMapping(path = "/cart/{id}/elements")
   public ResponseEntity<EntityModel<ShopCartElement>> addElementToCart(@PathVariable Long id,
       @RequestBody CartOrderElementDTO orderElementDTO)
@@ -132,6 +141,7 @@ public class ShopcartController {
   /**
    * @see <a href="http://restcookbook.com/HTTP%20Methods/put-vs-post/" >PUT vs POST</a>
    */
+  @Operation(summary = "create or alter a single element from a certain cart from storage", security = @SecurityRequirement(name = "basicScheme"))
   @PutMapping(path = "/cart/{id}/element/{elementId}")
   public ResponseEntity<EntityModel<ShopCartElement>> addElementToExistingCart(
       @PathVariable Long id,
@@ -165,6 +175,7 @@ public class ShopcartController {
   }
 
   // NO HAL just for preview purposes with inherit projection
+  @Operation(summary = "No HAL-Response for comparison", security = @SecurityRequirement(name = "basicScheme"))
   @GetMapping(path = "/plainCart/{id}")
   public ShopCart getCartByIdPlain(@PathVariable Long id) {
     return shopCartRepository.findOneById(id);
