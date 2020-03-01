@@ -11,3 +11,4 @@ The following features have been used in the underlying projects:
 * HAL-Forms with affordances  
 * JPA
 * Spring Security
+* OpenAPI 3 incl. Swagger-ui

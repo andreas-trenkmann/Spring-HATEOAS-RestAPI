@@ -9,3 +9,4 @@ The following features have been used in this project:
 * HATEOAS
 * JPA
 * Spring Security
+* OpenAPI 3 incl. Swagger-ui
